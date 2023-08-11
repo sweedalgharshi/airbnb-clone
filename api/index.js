@@ -61,7 +61,7 @@ app.post("/login", async (req, res) => {
       res.json("not found");
     }
 
-    const checkPasswordCorrect = await bcrypt.compare(password, user.password);
+    const checkPasswordCorrect = bcrypt.compare(password, user.password);
 
     if (!checkPasswordCorrect) {
       res.status(422).json("Incorrect password or email");
@@ -134,7 +134,7 @@ app.post("/places", (req, res) => {
   const {
     title,
     address,
-    addedPhotos,
+    photo: addedPhotos,
     description,
     perks,
     extraInfo,
@@ -162,6 +162,61 @@ app.post("/places", (req, res) => {
   });
 });
 
+app.get("/places", (req, res) => {
+  const { token } = req.cookies;
+
+  jwt.verify(token, process.env.JWT_SECRET_KEY, {}, async (err, userData) => {
+    if (err) throw err;
+    const { id } = userData;
+    const places = await Place.find({ owner: id });
+
+    res.json(places);
+  });
+});
+
+app.get(`/places/:id`, async (req, res) => {
+  const { id } = req.params;
+  const place = await Place.findById(id);
+  res.json(place);
+});
+
+app.put("/places", async (req, res) => {
+  const { token } = req.cookies;
+
+  const {
+    id,
+    title,
+    address,
+    addedPhotos,
+    description,
+    perks,
+    extraInfo,
+    checkIn,
+    checkOut,
+    maxGuests,
+  } = req.body;
+
+  jwt.verify(token, process.env.JWT_SECRET_KEY, {}, async (err, userData) => {
+    if (err) throw err;
+    const placeDoc = await Place.findById(id);
+
+    if (userData.id === placeDoc.owner.toString()) {
+      placeDoc.set({
+        title,
+        address,
+        photo: addedPhotos,
+        description,
+        perks,
+        extraInfo,
+        checkIn,
+        checkOut,
+        maxGuests,
+      });
+      await placeDoc.save();
+      res.json(placeDoc);
+    }
+  });
+});
 app.listen(4000, () => {
   console.log(`Listening on port 4000`);
 });

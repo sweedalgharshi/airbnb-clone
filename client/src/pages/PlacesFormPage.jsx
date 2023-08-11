@@ -1,12 +1,14 @@
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import axios from "axios";
-import { Navigate } from "react-router-dom";
+import { Navigate, useParams } from "react-router-dom";
 
 import Perks from "../Perks";
 import PhotosUploader from "../PhotosUploader";
 import AccountNav from "../AccountNav";
 
 function PlacesFormPage() {
+  const { id } = useParams();
+  // console.log(id);
   const [title, setTitle] = useState("");
   const [address, setAddress] = useState("");
   const [addedPhotos, setAddedPhotos] = useState([]);
@@ -17,6 +19,27 @@ function PlacesFormPage() {
   const [checkOut, setCheckOut] = useState("");
   const [maxGuests, setMaxGuests] = useState(1);
   const [redirect, setRedirect] = useState(false);
+
+  useEffect(() => {
+    const fetchPlace = async () => {
+      if (!id) {
+        return;
+      }
+
+      const { data } = await axios.get(`/places/${id}`);
+
+      setTitle(data?.title);
+      setAddress(data?.address);
+      setAddedPhotos([...(data?.photos || [])]);
+      setDescription(data?.description);
+      setPerks(data?.perks);
+      setExtraInfo(data?.extraInfo);
+      setCheckIn(data?.checkIn);
+      setCheckOut(data?.checkOut);
+      setMaxGuests(data?.maxGuests);
+    };
+    fetchPlace();
+  }, [id]);
 
   function inputHeader(text) {
     return <h2 className="text-2xl mt-4">{text}</h2>;
@@ -35,7 +58,7 @@ function PlacesFormPage() {
     );
   }
 
-  async function handleAddNewPlace(e) {
+  async function handleSavePlace(e) {
     e.preventDefault();
     const data = {
       title,
@@ -48,12 +71,19 @@ function PlacesFormPage() {
       checkOut,
       maxGuests,
     };
+    if (id) {
+      // update
+      await axios.put("/places", { id, ...data });
+      setRedirect(true);
+    } else {
+      // new place
+
+      await axios.post("/places", data);
+      setRedirect(true);
+    }
     //   const res = await axios.post("/places", data);
     //   const result = res.json();
     //   console.log(result);
-
-    await axios.post("/places", data);
-    setRedirect(true);
   }
 
   if (redirect) {
@@ -62,7 +92,7 @@ function PlacesFormPage() {
   return (
     <div>
       <AccountNav />
-      <form onSubmit={handleAddNewPlace}>
+      <form onSubmit={handleSavePlace}>
         {preInput("Title", "Title for your place. Should be short and catchy as in advertisement.")}
         <input
           type="text"
@@ -111,8 +141,8 @@ function PlacesFormPage() {
             <h3 className="mt-2 -mb-1">Check-out time</h3>
             <input
               type="text"
-              placeholder=" 10:00 am"
-              value={checkOut}
+              placeholder="12:00pm"
+              value={checkOut || ""}
               onChange={(e) => setCheckOut(e.target.value)}
             />
           </div>
