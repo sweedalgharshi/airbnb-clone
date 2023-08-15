@@ -30,7 +30,8 @@ function PlacesFormPage() {
 
       setTitle(data?.title);
       setAddress(data?.address);
-      setAddedPhotos([...(data?.photos || [])]);
+      // setAddedPhotos([...(data?.photo || [])]);
+      setAddedPhotos(data.photo);
       setDescription(data?.description);
       setPerks(data?.perks);
       setExtraInfo(data?.extraInfo);
@@ -60,7 +61,7 @@ function PlacesFormPage() {
 
   async function handleSavePlace(e) {
     e.preventDefault();
-    const data = {
+    const placeData = {
       title,
       address,
       addedPhotos,
@@ -73,12 +74,12 @@ function PlacesFormPage() {
     };
     if (id) {
       // update
-      await axios.put("/places", { id, ...data });
+      await axios.put("/places", { id, ...placeData });
       setRedirect(true);
     } else {
       // new place
 
-      await axios.post("/places", data);
+      await axios.post("/places", placeData);
       setRedirect(true);
     }
     //   const res = await axios.post("/places", data);

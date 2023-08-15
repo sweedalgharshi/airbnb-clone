@@ -134,7 +134,7 @@ app.post("/places", (req, res) => {
   const {
     title,
     address,
-    photo: addedPhotos,
+    addedPhotos,
     description,
     perks,
     extraInfo,
@@ -149,7 +149,7 @@ app.post("/places", (req, res) => {
       owner: userData.id,
       title,
       address,
-      addedPhotos,
+      photo: addedPhotos,
       description,
       perks,
       extraInfo,
@@ -217,6 +217,7 @@ app.put("/places", async (req, res) => {
     }
   });
 });
+
 app.listen(4000, () => {
   console.log(`Listening on port 4000`);
 });

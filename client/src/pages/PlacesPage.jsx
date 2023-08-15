@@ -51,7 +51,7 @@ function PlacesPage() {
               <div className="flex w-32 h-32 bg-gray-300">
                 {place.photo.length > 0 && (
                   <img
-                    className="object-cover "
+                    className="object-cover"
                     src={`http://localhost:4000/uploads/${place.photo[0]}`}
                     alt=""
                   />
