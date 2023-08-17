@@ -8,7 +8,7 @@ function PlacesPage() {
   const [places, setPlaces] = useState([]);
   useEffect(() => {
     const fetchPlaces = async () => {
-      const { data } = await axios.get("/places");
+      const { data } = await axios.get("/user-places");
       // const data = res.json();
       console.log(data);
       setPlaces(data);
@@ -46,9 +46,9 @@ function PlacesPage() {
             <Link
               to={`/account/places/${place._id}`}
               key={place._id}
-              className="cursor-pointer flex gap-4 bg-gray-100 rounded-2xl p-4 grow shrink-0"
+              className="cursor-pointer flex gap-4 bg-gray-100 rounded-2xl p-4 "
             >
-              <div className="flex w-32 h-32 bg-gray-300">
+              <div className="flex w-32 h-32 bg-gray-300 grow shrink-0">
                 {place.photo.length > 0 && (
                   <img
                     className="object-cover"
