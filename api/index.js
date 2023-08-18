@@ -227,6 +227,12 @@ app.get("/places", async (req, res) => {
   res.json(place);
 });
 
+app.get("/place/:id", async (req, res) => {
+  const { id } = req.params;
+  const place = await Place.findById(id);
+  res.json(place);
+});
+
 app.listen(4000, () => {
   console.log(`Listening on port 4000`);
 });
