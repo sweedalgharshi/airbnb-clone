@@ -11,6 +11,7 @@ const fs = require("fs");
 
 const User = require("./models/User");
 const Place = require("./models/Place");
+const Booking = require("./models/Booking");
 
 const app = express();
 
@@ -231,6 +232,25 @@ app.get("/place/:id", async (req, res) => {
   const { id } = req.params;
   const place = await Place.findById(id);
   res.json(place);
+});
+
+app.post("/bookings", async (req, res) => {
+  const { place, checkIn, checkOut, numberOfGuests, name, phone, price } = req.body;
+
+  try {
+    const newBooking = await Booking.create({
+      place,
+      checkIn,
+      checkOut,
+      numberOfGuests,
+      name,
+      phone,
+      price,
+    });
+    res.json(newBooking);
+  } catch (err) {
+    throw err;
+  }
 });
 
 app.listen(4000, () => {
