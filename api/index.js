@@ -12,6 +12,8 @@ const fs = require("fs");
 const User = require("./models/User");
 const Place = require("./models/Place");
 const Booking = require("./models/Booking");
+const { resolve } = require("path");
+const { rejects } = require("assert");
 
 const app = express();
 
@@ -96,6 +98,15 @@ app.get("/profile", (req, res) => {
     res.json(null);
   }
 });
+
+function getUserDataFromReq(req) {
+  return new Promise((resolve, reject) => {
+    jwt.verify(req.cookies.token, process.env.JWT_SECRET_KEY, {}, async (err, userData) => {
+      if (err) throw err;
+      resolve(userData);
+    });
+  });
+}
 
 app.post("/logout", (req, res) => {
   res.cookie("token", "").json(true);
@@ -235,10 +246,13 @@ app.get("/place/:id", async (req, res) => {
 });
 
 app.post("/bookings", async (req, res) => {
+  const userData = await getUserDataFromReq(req);
+
   const { place, checkIn, checkOut, numberOfGuests, name, phone, price } = req.body;
 
   try {
     const newBooking = await Booking.create({
+      user: userData.id,
       place,
       checkIn,
       checkOut,
@@ -251,6 +265,14 @@ app.post("/bookings", async (req, res) => {
   } catch (err) {
     throw err;
   }
+});
+
+app.get("/bookings", async (req, res) => {
+  const userData = await getUserDataFromReq(req);
+  // console.log(userData);
+  const bookings = await Booking.find({ user: userData.id }).populate("place");
+
+  res.json(bookings);
 });
 
 app.listen(4000, () => {
